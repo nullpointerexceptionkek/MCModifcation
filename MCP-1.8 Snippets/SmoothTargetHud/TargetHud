@@ -1,0 +1,91 @@
+//made by getInstance
+
+//You might need to modify the code to fit for your client
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.lwjgl.input.Mouse;
+
+import mc.red.Gui.hud.ScreenPosition;
+import mc.red.mods.ModDraggable;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItemFrame;
+
+public class ModTargetHUD extends ModDraggable{
+	
+	private List<Long> clicks = new ArrayList<Long>();
+	private boolean wasPressed;
+	private long lastPressed;
+	
+	EntityLivingBase savedTarget;
+	
+	public ModTargetHUD() {
+		super("TargetInfo","Shows info about the target");
+	}
+
+	@Override
+	public int getWidth() {
+		return 125;
+	}
+
+	@Override
+	public int getHeight() {
+		return 50;
+	}
+
+	@Override
+	public void render(ScreenPosition pos) {
+		renderTargetHUD();
+		
+	}
+	
+	@Override
+	public void renderDummy(ScreenPosition pos) {
+		font.drawStringWithShadow("TargetName", pos.getAbsoluteX()+18, pos.getAbsoluteY()+2, -1);
+		font.drawStringWithShadow("20" + " \u2764", pos.getAbsoluteX()+18, pos.getAbsoluteY()+2 +font.FONT_HEIGHT, -1);
+
+	}
+	
+	private void renderTargetHUD() {
+		
+		if(!(mc.pointedEntity instanceof EntityItemFrame)) {
+		EntityLivingBase target = (EntityLivingBase)mc.pointedEntity;
+			if(target!=null) {
+				final boolean pressed = Mouse.isButtonDown(0);
+				if(pressed != this.wasPressed) {
+					this.lastPressed = System.currentTimeMillis();
+					this.wasPressed = pressed;
+					if(pressed) {
+						this.clicks.add(this.lastPressed);
+					}
+				}
+				
+				Gui.drawRoundedRect(pos.getAbsoluteX(), pos.getAbsoluteY()+10, pos.getAbsoluteX()+ getWidth(), pos.getAbsoluteY()+ getHeight(), 5, new Color(49,51,53,255).getRGB());
+				Gui.drawRoundedRect(pos.getAbsoluteX()+getWidth()-25, pos.getAbsoluteY(), pos.getAbsoluteX()+ getWidth() + 5, pos.getAbsoluteY()+15, 5, new Color(255,245,238,255).getRGB());
+				font.drawString(String.format("%.0f\u2764", target.getHealth()), pos.getAbsoluteX()+getWidth()-20, pos.getAbsoluteY()+4, new Color(255,0,0,255).getRGB());
+				
+				
+				font.drawString(String.format("%.2f Blocks", target.getDistance(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)), pos.getAbsoluteX()+5, pos.getAbsoluteY()+37, -1);
+				
+				font.drawString("Cps: " + getCpsLeft(), pos.getAbsoluteX()+85, pos.getAbsoluteY()+37, -1);
+				font.drawStringWithShadow(target.getName(), pos.getAbsoluteX()+28, pos.getAbsoluteY() + 17, -1);
+				Gui.drawPlayerHead(pos.getAbsoluteX() + 10, pos.getAbsoluteY() + 20, 16, target);
+				renderHealthBar(target);
+			}
+		}
+	}
+	private void renderHealthBar(EntityLivingBase target) {
+		Gui.drawRect(pos.getAbsoluteX() + 27, pos.getAbsoluteY()+27, pos.getAbsoluteX()+ 120,pos.getAbsoluteY()+35, new Color(25,23,13).getRGB());
+		Gui.drawRect(pos.getAbsoluteX() + 27, pos.getAbsoluteY()+27, pos.getAbsoluteX()+ 27+(int)(93*(target.getHealth()/target.getMaxHealth())),pos.getAbsoluteY()+35, new Color(233,55,65).getRGB());
+	}
+	
+	private int getCpsLeft() {
+		final long time = System.currentTimeMillis();
+		this.clicks.removeIf(aLong -> aLong + 1000 < time);
+		return this.clicks.size();
+	}
+	
+}
