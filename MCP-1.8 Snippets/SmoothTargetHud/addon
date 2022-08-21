@@ -1,0 +1,46 @@
+//to made the targethud mod work you will need a few methods, place these two method in the Gui Class
+
+public static void drawPlayerHead(int x, int y, int width, EntityLivingBase player) {//width and height are the same number so yeah yes aha
+    	NetworkPlayerInfo playerInfo = mc.getNetHandler().getPlayerInfo(player.getUniqueID());
+    	if (playerInfo != null){
+            mc.getTextureManager().bindTexture(playerInfo.getLocationSkin());
+            GL11.glColor4f(1F, 1F, 1F, 1F);
+
+            Gui.drawScaledCustomSizeModalRect((int) x - 5, (int) y - 5, 8F, 8F, 8, 8, 20, 20, 64F, 64F);
+        }
+        
+    }
+    
+public static void drawRoundedRect(float x, float y, float x1, float y1, float radius, int color) {
+        glPushAttrib(0);
+        glScaled(0.5D, 0.5D, 0.5D);
+        x *= 2.0D;
+        y *= 2.0D;
+        x1 *= 2.0D;
+        y1 *= 2.0D;
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_LINE_SMOOTH);
+        setColor(color);
+        glEnable(GL_LINE_SMOOTH);
+        glBegin(GL_POLYGON);
+        int i;
+        for (i = 0; i <= 90; i += 3)
+          glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D); 
+        for (i = 90; i <= 180; i += 3)
+          glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D); 
+        for (i = 0; i <= 90; i += 3)
+          glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius); 
+        for (i = 90; i <= 180; i += 3)
+          glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius); 
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glEnable(GL_BLEND);
+        glPopAttrib();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+      }
